@@ -2,7 +2,7 @@ const express = require('express');
 const mysql = require('mysql2/promise');
 const {mysqlConfig} = require('../../config');
 const {validate} = require('../../middleware/validation/validation');
-const {commentValidation} = require('../../middleware/validation/validationSchemas/commentValidation');
+const {repliesValidation} = require('../../middleware/validation/validationSchemas/repliesValidation');
 const router = express.Router();
 
 
@@ -10,7 +10,7 @@ const router = express.Router();
 router.get('/get', async(req,res) =>{
     try{
         const con = await mysql.createConnection(mysqlConfig);
-        const [data] = await con.execute(`SELECT * FROM comments`);
+        const [data] = await con.execute(`SELECT * FROM replies`);
         await con.end();
         if(data.length > 0){
            return res.send({data: data});
@@ -22,14 +22,14 @@ router.get('/get', async(req,res) =>{
     }
 })
 
-router.post('/add', validate(commentValidation), async (req,res) =>{
+router.post('/add', validate(repliesValidation), async (req,res) =>{
     try{
         const con = await mysql.createConnection(mysqlConfig);
-        const [data] = await con.execute(`INSERT INTO comments (user_id, content, suggestion_id)
-        VALUES(${mysql.escape(req.body.user_id)},${mysql.escape(req.body.content)}, ${mysql.escape(req.body.suggestion_id)})`);
+        const [data] = await con.execute(`INSERT INTO replies (user_id, content, comment_id)
+        VALUES(${mysql.escape(req.body.user_id)},${mysql.escape(req.body.content)}, ${mysql.escape(req.body.comment_id)})`);
         await con.end();
         if(data.insertId){
-            return res.send({msg:'Comment posted'});
+            return res.send({msg:'reply posted'});
         } else {
             return res.status(500).send({err:'Something wrong with the server. Please try again later'});
         }

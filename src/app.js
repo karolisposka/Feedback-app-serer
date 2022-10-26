@@ -4,6 +4,7 @@ const app = express();
 const sugestionsRoute = require('./routes/v1/suggestions');
 const commentsRoute = require('./routes/v1/comments');
 const repliesRoute = require('./routes/v1/replies');
+const upvotesRoute = require('./routes/v1/upvotes');
 app.use(cors());
 app.use(express.json());
 
@@ -14,6 +15,7 @@ app.get('/', (req,res) => {
 app.use('/v1/suggestions', sugestionsRoute);
 app.use('/v1/replies', repliesRoute);
 app.use('/v1/comments', commentsRoute);
+app.use('/v1/upvotes', upvotesRoute);
 
 app.get('/*', (req,res)=>{
     res.send('server is running');

@@ -1,5 +1,6 @@
-const validate = (schema) => async (req,res,next) => {
+const validate = (schema) => async (req, res, next) => {
     try{
+        console.log(req.body);
         req.body === await schema.validateAsync(req.body);
         return next()
     }catch(err){
