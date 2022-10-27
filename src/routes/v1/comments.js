@@ -26,7 +26,7 @@ router.post('/add', validate(commentValidation), async (req,res) =>{
     try{
         const con = await mysql.createConnection(mysqlConfig);
         const [data] = await con.execute(`INSERT INTO comments (user_id, content, suggestion_id)
-        VALUES(${mysql.escape(req.body.user_id)},${mysql.escape(req.body.content)}, ${mysql.escape(req.body.suggestion_id)})`);
+        VALUES(${mysql.escape(1)},${mysql.escape(req.body.content)}, ${mysql.escape(req.body.suggestion_id)})`);
         await con.end();
         if(data.insertId){
             return res.send({msg:'Comment posted'});
