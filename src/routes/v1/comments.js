@@ -1,5 +1,6 @@
 const express = require('express');
 const mysql = require('mysql2/promise');
+const checkIfLoggedIn = require('../../middleware/auth/auth');
 const {mysqlConfig} = require('../../config');
 const {validate} = require('../../middleware/validation/validation');
 const {commentValidation} = require('../../middleware/validation/validationSchemas/commentValidation');
@@ -22,11 +23,12 @@ router.get('/get', async(req,res) =>{
     }
 })
 
-router.post('/add', validate(commentValidation), async (req,res) =>{
+router.post('/add', validate(commentValidation), checkIfLoggedIn(), async (req,res) =>{
     try{
+        console.log(req.user);
         const con = await mysql.createConnection(mysqlConfig);
         const [data] = await con.execute(`INSERT INTO comments (user_id, content, suggestion_id)
-        VALUES(${mysql.escape(1)},${mysql.escape(req.body.content)}, ${mysql.escape(req.body.suggestion_id)})`);
+        VALUES(${mysql.escape(req.user)},${mysql.escape(req.body.content)}, ${mysql.escape(req.body.suggestion_id)})`);
         await con.end();
         if(data.insertId){
             return res.send({msg:'Comment posted'});

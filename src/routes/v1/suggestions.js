@@ -1,9 +1,12 @@
 const express = require('express');
 const mysql = require('mysql2/promise');
-const {mysqlConfig} = require('../../config');
+const {mysqlConfig, S3Config, bucketName} = require('../../config');
 const {validate} = require('../../middleware/validation/validation');
+const { getSignedUrl } = require("@aws-sdk/s3-request-presigner");
+const {S3Client, GetObjectCommand} = require('@aws-sdk/client-s3')
 const {newSuggestionValidation} = require('../../middleware/validation/validationSchemas/suggestionsValidation');
 const router = express.Router();
+const s3 = new S3Client(S3Config)
 
 
 router.get('/get', async(req,res) =>{
@@ -26,7 +29,7 @@ router.get('/get', async(req,res) =>{
             return res.status(500).send({err:'something wrong with the server. Please try again later'});
         }
     }catch(err){
-        console.log(err);
+        res.send({err:'something wrong with the server. Please try again later'});
     }
 })
 
@@ -79,10 +82,27 @@ router.get('/single/:id', async (req,res) =>{
         const [data] = await con.execute(`SELECT * FROM suggestions WHERE id=${mysql.escape(req.params.id)}`);
         const [upvotes] = await con.execute(`SELECT * FROM upvotes WHERE suggestion_id=${mysql.escape(req.params.id)}`);
         const [comments] = await con.execute(`SELECT * FROM comments WHERE suggestion_id=${mysql.escape(req.params.id)}`);
-        const [users] = await con.execute(`SELECT username, name, id FROM users`);
         const [replies] = await con.execute(`SELECT * FROM replies`);
+        const [users] = await con.execute(`SELECT username, name, id, image FROM users`);
         await con.end();
-        if(data.length > 0 && upvotes && comments && replies ){
+
+        if(data && upvotes && comments && replies && users ){
+            //retrieve users images from S3 bucket
+             for(const user of users){
+                if(user.image){
+                    const getObjectParams={
+                        Bucket: bucketName,
+                        Key: user.image,
+                    }
+                    const command = new GetObjectCommand(getObjectParams);
+                    const url = await getSignedUrl(s3, command, { expiresIn: 3600 });
+                    user.image = url
+                }else{
+                    user.image === null
+                }
+            }
+
+            //mapping suggestions data
             const mappedData = data.map(item=> {
                 return {
                     ...item,
@@ -109,16 +129,5 @@ router.get('/single/:id', async (req,res) =>{
         console.log('something wrong with the server. Please try again later');
     }
 })
-
-
-
-
-
-
-
-
-
-
-
 
 module.exports = router;
