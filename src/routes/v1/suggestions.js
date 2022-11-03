@@ -3,7 +3,7 @@ const mysql = require('mysql2/promise');
 const checkIfLoggedIn = require('../../middleware/auth/auth');
 const {mysqlConfig} = require('../../config');
 const {validate} = require('../../middleware/validation/validation');
-const {newSuggestionValidation, editSuggestionValidation} = require('../../middleware/validation/validationSchemas/suggestionsValidation');
+const {newSuggestionValidation} = require('../../middleware/validation/validationSchemas/suggestionsValidation');
 const router = express.Router();
 
 
@@ -87,7 +87,7 @@ router.get('/single/:id', async (req,res) =>{
     }
 })
 
-router.post('/edit', validate(editSuggestionValidation), checkIfLoggedIn(), async (req,res) => {
+router.post('/edit',  checkIfLoggedIn(), async (req,res) => {
     try{
         const con = await mysql.createConnection(mysqlConfig);
         const [data] = await con.execute(`UPDATE suggestions SET title=${mysql.escape(req.body.title)}, status=${mysql.escape(req.body.status)}, category=${mysql.escape(req.body.category)}, description=${mysql.escape(req.body.description)} WHERE id=${mysql.escape(req.body.id)}`);
