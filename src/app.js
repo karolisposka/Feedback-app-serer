@@ -24,5 +24,5 @@ app.use('/v1/users', usersRoute);
 // });
 
 app.listen(process.env.PORT, ()=>{
-    console.log('server is running on port 8080');
+    console.log(`server is running on port ${process.env.PORT}`);
 });
