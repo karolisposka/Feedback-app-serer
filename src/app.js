@@ -23,6 +23,6 @@ app.use('/v1/users', usersRoute);
 //     res.send('server is running');
 // });
 
-app.listen(8080, ()=>{
+app.listen(process.env.PORT, ()=>{
     console.log('server is running on port 8080');
 });
