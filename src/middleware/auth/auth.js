@@ -7,7 +7,7 @@ const checkIfLoggedIn = () => async (req,res,next) => {
         req.user = jwt.verify(token, jwtSecret);
         return next();
     }catch(err){
-        res.status(500).send({err:'Something wrong with the server. Please try again later'})
+        res.status(500).send({err:'Not authorized!'})
     }
 }
 

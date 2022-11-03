@@ -14,12 +14,12 @@ router.get('/get', async(req,res) =>{
         const [data] = await con.execute(`SELECT * FROM replies`);
         await con.end();
         if(data.length > 0){
-           return res.send({data: data});
+           return res.send(data);
         } else {
             return res.status(500).send({err:'something wrong with the server. Please try again later'});
         }
     }catch(err){
-        res.send({err:err});
+        res.send({err:'something wrong with the server. Please try again later'});
     }
 })
 
@@ -30,13 +30,12 @@ router.post('/add', validate(repliesValidation), checkIfLoggedIn(), async (req,r
         VALUES(${mysql.escape(req.user)},${mysql.escape(req.body.content)}, ${mysql.escape(req.body.comment_id)})`);
         await con.end();
         if(data.insertId){
-            return res.send({msg:'reply posted'});
+            return res.send({content: req.body.content, comment_id: req.body.comment_id, user_id: req.user });
         } else {
             return res.status(500).send({err:'Something wrong with the server. Please try again later'});
         }
     }catch(err){
-        console.log(err);
-        res.status(500).send({err: err})
+        return res.status(500).send({err: 'something wrong with the server. Pleaes try again later'});
     }
 })
 

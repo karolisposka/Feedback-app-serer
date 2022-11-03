@@ -11,33 +11,31 @@ const router = express.Router();
 router.get('/get', async(req,res) =>{
     try{
         const con = await mysql.createConnection(mysqlConfig);
-        const [data] = await con.execute(`SELECT * FROM comments`);
+        const [data] = await con.execute(`SELECT users.name, users.username, users.image, comments.* FROM comments LEFT JOIN users ON users.id = comments.user_id`);
         await con.end();
         if(data.length > 0){
-           return res.send({data: data});
+           return res.send(data);
         } else {
             return res.status(500).send({err:'something wrong with the server. Please try again later'});
         }
     }catch(err){
-        res.send({err:err});
+        return res.send({err:'something wrong with the server. Please try again later'});
     }
 })
 
 router.post('/add', validate(commentValidation), checkIfLoggedIn(), async (req,res) =>{
     try{
-        console.log(req.user);
         const con = await mysql.createConnection(mysqlConfig);
         const [data] = await con.execute(`INSERT INTO comments (user_id, content, suggestion_id)
         VALUES(${mysql.escape(req.user)},${mysql.escape(req.body.content)}, ${mysql.escape(req.body.suggestion_id)})`);
         await con.end();
         if(data.insertId){
-            return res.send({msg:'Comment posted'});
+            return res.send({content:req.body.content, user_id: req.user, suggestion_id: Number(req.body.suggestion_id), id:Number(data.insertId) });
         } else {
             return res.status(500).send({err:'Something wrong with the server. Please try again later'});
         }
     }catch(err){
-        console.log(err);
-        res.status(500).send({err: err})
+        return res.status(500).send({err: 'something wrong with the server. Please try again later'})
     }
 })
 
