@@ -19,6 +19,7 @@ router.get('/get', async(req,res) =>{
             return res.status(500).send({err:'something wrong with the server. Please try again later'});
         }
     }catch(err){
+        console.log(err);
         res.send({err:'something wrong with the server. Please try again later'});
     }
 })
