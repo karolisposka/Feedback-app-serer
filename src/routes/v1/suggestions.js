@@ -27,7 +27,7 @@ router.get('/get', async(req,res) => {
 router.get('/get/:category', async(req,res) =>{
     try{
         const con = await mysql.createConnection(mysqlConfig);
-        const [data] = await con.execute(`SELECT * FROM suggestions WHERE category=${mysql.escape(req.params.category.toLowerCase())}`);
+        const [data] = await con.execute(`SELECT * FROM suggestions WHERE category=${mysql.escape(req.params.category.toUpperCase())}`);
         await con.end();
         if(data){
            return res.send(data);
