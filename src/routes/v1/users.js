@@ -70,16 +70,20 @@ router.post('/login', validate(loginValidation), async (req,res) =>{
         const con = await mysql.createConnection(mysqlConfig);
         const [data] = await con.execute(`SELECT password, id FROM users WHERE username=${mysql.escape(req.body.username)}`);
         await con.end();
-        const checkPassword = await bcrypt.compareSync(req.body.password, data[0].password);
-        if(checkPassword){
-            const token = await jwt.sign(data[0].id, jwtSecret);
-            if(token){
-                return res.send({token})
+        if(data){
+            const checkPassword = await bcrypt.compareSync(req.body.password, data[0].password);
+            if(checkPassword){
+                const token = await jwt.sign(data[0].id, jwtSecret);
+                if(token){
+                    return res.send({token});
+                }else{
+                    return res.status(500).send({err:"something wrong with the server.Please try again later"});
+                }
             }else{
-                return res.status(500).send({err:"something wrong with the server.Please try again later"})
+                return res.send({err:"wrong password"});
             }
         }else{
-            return res.send({err:"wrong password"})
+            res.status(400).send({err:'user does not exist'});
         }
     }catch(err){
         return res.status(500).send({err: 'Oops... Something wrong. Might be that user does not exist'})

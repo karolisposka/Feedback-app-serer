@@ -16,7 +16,7 @@ router.get('/get', async(req,res) =>{
         if(data.length > 0){
            return res.send(data);
         } else {
-            return res.status(500).send({err:'something wrong with the server. Please try again later'});
+            return 
         }
     }catch(err){
         return res.send({err:'something wrong with the server. Please try again later'});
